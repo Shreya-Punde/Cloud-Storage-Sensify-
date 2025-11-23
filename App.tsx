@@ -10,7 +10,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Selection mode states
+  // Selection mode
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileItem[]>([]);
 
@@ -37,18 +37,24 @@ function App() {
     setSelectedFiles([]);
   };
 
+  // FIX: Auto-append .csv for Cloudinary fetch
+  const ensureCSV = (url: string) => {
+    return url.endsWith(".csv") ? url : `${url}`;
+  };
+
   const handleSelectionComplete = () => {
     if (selectedFiles.length === 0) return;
 
-    // Pass selected file URLs as query parameters
+    // Encode URLs + fix CSV extension
     const fileUrls = selectedFiles
-      .map((f) => encodeURIComponent(f.url))
+      .map((f) => encodeURIComponent(ensureCSV(f.url)))
       .join(",");
+
     const fileNames = selectedFiles
       .map((f) => encodeURIComponent(f.name))
       .join(",");
 
-    window.location.href = `https://giri-shankar.github.io/ai-analytics-page/?files=${fileUrls}&names=${fileNames}`;
+    window.location.href = `https://giri-shankar.github.io/ai-analytics-v2/?files=${fileUrls}&names=${fileNames}`;
   };
 
   const handleCancelSelection = () => {
@@ -78,6 +84,7 @@ function App() {
                   />
                 </svg>
               </div>
+
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   IoT Data Manager
@@ -90,18 +97,16 @@ function App() {
 
             <nav className="hidden md:flex items-center gap-2">
               <button
-                onClick={() => {
-                  if (selectionMode) handleCancelSelection();
-                }}
+                onClick={() => selectionMode && handleCancelSelection()}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   !selectionMode
                     ? "bg-slate-100 text-slate-900"
                     : "text-slate-500 hover:bg-slate-100"
                 }`}
-                aria-current={!selectionMode ? "page" : undefined}
               >
                 Dashboard
               </button>
+
               <button
                 onClick={handleAIAnalyticsClick}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
@@ -118,13 +123,12 @@ function App() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Bar */}
         {!selectionMode && (
           <div className="mb-8">
             <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search files by name..."
@@ -136,7 +140,6 @@ function App() {
           </div>
         )}
 
-        {/* Dashboard */}
         <Dashboard
           files={files}
           setFiles={setFiles}

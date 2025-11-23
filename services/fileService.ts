@@ -1,6 +1,9 @@
 // Updated frontend file with proper state management
 import type { FileItem, FileType, SensorType } from "../types";
-import { FileType as FileTypeEnum, SensorType as SensorTypeEnum } from "../types";
+import {
+  FileType as FileTypeEnum,
+  SensorType as SensorTypeEnum,
+} from "../types";
 
 const API_BASE_URL = "http://localhost:3001/api";
 
@@ -57,22 +60,22 @@ const mapCloudinaryResourceToFileItem = (resource: any): FileItem => {
 // FETCH FILES
 export const getFiles = async (): Promise<FileItem[]> => {
   try {
-    console.log('Fetching files from:', `${API_BASE_URL}/files`);
+    console.log("Fetching files from:", `${API_BASE_URL}/files`);
 
     const response = await fetch(`${API_BASE_URL}/files`);
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Fetch error:', errorData);
+      console.error("Fetch error:", errorData);
       throw new Error(errorData.error || "Failed to fetch files");
     }
 
     const resources = await response.json();
-    console.log('Received files:', resources.length);
+    console.log("Received files:", resources.length);
 
     return resources.map(mapCloudinaryResourceToFileItem);
   } catch (error) {
-    console.error('getFiles error:', error);
+    console.error("getFiles error:", error);
     throw error;
   }
 };
@@ -85,25 +88,30 @@ export const uploadFile = async (file: File): Promise<FileItem> => {
     form.append("file", file);
     form.append("publicId", publicId);
 
-    console.log('Uploading file:', publicId);
+    console.log("Uploading file:", publicId, "to:", `${API_BASE_URL}/files`);
 
     const res = await fetch(`${API_BASE_URL}/files`, {
       method: "POST",
       body: form,
     });
 
+    console.log("Response status:", res.status);
+
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || "Upload failed");
+      const error = await res.json().catch(() => ({ error: "Network error" }));
+      throw new Error(error.error || `Upload failed with status ${res.status}`);
     }
 
     const data = await res.json();
-    console.log('Upload response:', data);
-    
-    // Return the properly mapped file item
+    console.log("Upload response:", data);
+
     return mapCloudinaryResourceToFileItem(data);
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error("Upload error details:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    });
     throw error;
   }
 };
@@ -115,41 +123,51 @@ export const renameFile = async (
 ): Promise<FileItem> => {
   try {
     // Keep the original extension from the file
-    const oldExtension = file.id.split('.').pop();
+    const oldExtension = file.id.split(".").pop();
     let newPublicId = newName;
-    
+
     // Remove extension from newName if it was provided
-    newPublicId = newPublicId.replace(/\.[^/.]+$/, '');
-    
+    newPublicId = newPublicId.replace(/\.[^/.]+$/, "");
+
     // Add back the original extension if the file had one
-    if (oldExtension && file.id.includes('.')) {
+    if (oldExtension && file.id.includes(".")) {
       newPublicId = `${newPublicId}.${oldExtension}`;
     }
-    
-    console.log('Renaming:', file.id, 'to:', newPublicId, 'type:', file.resourceType);
-    
-    const res = await fetch(`${API_BASE_URL}/files/${encodeURIComponent(file.id)}/rename`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        newName: newPublicId,
-        resourceType: file.resourceType || "raw",
-      }),
-    });
+
+    console.log(
+      "Renaming:",
+      file.id,
+      "to:",
+      newPublicId,
+      "type:",
+      file.resourceType
+    );
+
+    const res = await fetch(
+      `${API_BASE_URL}/files/${encodeURIComponent(file.id)}/rename`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          newName: newPublicId,
+          resourceType: file.resourceType || "raw",
+        }),
+      }
+    );
 
     if (!res.ok) {
       const error = await res.json();
-      console.error('Rename error response:', error);
+      console.error("Rename error response:", error);
       throw new Error(error.error || "Rename failed");
     }
 
     const data = await res.json();
-    console.log('Rename response:', data);
-    
+    console.log("Rename response:", data);
+
     // Return the properly mapped file item with updated data
     return mapCloudinaryResourceToFileItem(data);
   } catch (error) {
-    console.error('Rename request failed:', error);
+    console.error("Rename request failed:", error);
     throw error;
   }
 };
@@ -157,10 +175,12 @@ export const renameFile = async (
 // DELETE FILE
 export const deleteFile = async (file: FileItem): Promise<boolean> => {
   try {
-    console.log('Deleting file:', file.id, 'type:', file.resourceType);
-    
+    console.log("Deleting file:", file.id, "type:", file.resourceType);
+
     const res = await fetch(
-      `${API_BASE_URL}/files/${encodeURIComponent(file.id)}?resourceType=${file.resourceType || "raw"}`,
+      `${API_BASE_URL}/files/${encodeURIComponent(file.id)}?resourceType=${
+        file.resourceType || "raw"
+      }`,
       { method: "DELETE" }
     );
 
@@ -170,11 +190,11 @@ export const deleteFile = async (file: FileItem): Promise<boolean> => {
     }
 
     const data = await res.json();
-    console.log('Delete response:', data);
-    
+    console.log("Delete response:", data);
+
     return data.result === "ok";
   } catch (error) {
-    console.error('Delete error:', error);
+    console.error("Delete error:", error);
     throw error;
   }
 };
