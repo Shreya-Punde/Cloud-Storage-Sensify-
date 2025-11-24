@@ -122,7 +122,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     setIsUploading(true);
     try {
       console.log("Uploading file:", file.name);
-      const uploadedFile = await uploadFile(file);
+      const uploadedAt = Date.now(); // Returns number
+      const uploadedFile = await uploadFile(file, uploadedAt); // Pass it to uploadFile
       setFiles((prev) => [uploadedFile, ...prev]);
       console.log("Upload successful:", uploadedFile);
     } catch (err) {
@@ -137,7 +138,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleRename = async (newName: string) => {
-    if (!renamingFile) return;
+    if (!renamingFile) {
+      console.log("No File")
+      return;
+    };
     try {
       console.log("Renaming file:", renamingFile.id, "to:", newName);
       const renamedFile = await renameFile(renamingFile, newName);
@@ -175,9 +179,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   const handleFileSelect = (file: FileItem) => {
     if (!selectionMode || !onSelectionChange) return;
 
-    const isSelected = selectedFiles.some((f) => f.id === file.id);
+    const isSelected = selectedFiles.some((f) => f.id === `${file.name}-${file.uploadedAt}`);
     if (isSelected) {
-      onSelectionChange(selectedFiles.filter((f) => f.id !== file.id));
+      onSelectionChange(selectedFiles.filter((f) => f.id !== `${file.name}-${file.uploadedAt}`));
     } else {
       onSelectionChange([...selectedFiles, file]);
     }
@@ -323,9 +327,8 @@ const Dashboard: React.FC<DashboardProps> = ({
           >
             <Filter className="h-5 w-5" />
             <ChevronDown
-              className={`h-5 w-5 transition-transform ${
-                isFilterOpen ? "rotate-180" : ""
-              }`}
+              className={`h-5 w-5 transition-transform ${isFilterOpen ? "rotate-180" : ""
+                }`}
             />
           </button>
           {isFilterOpen && (
@@ -337,11 +340,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <button
                   key={opt.value}
                   onClick={() => handleFilterOrSort("sort", opt.value)}
-                  className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${
-                    sortOption === opt.value
+                  className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${sortOption === opt.value
                       ? "bg-blue-100 text-blue-700"
                       : "text-slate-700 hover:bg-slate-100"
-                  }`}
+                    }`}
                 >
                   {opt.label}
                 </button>
@@ -352,11 +354,10 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
               <button
                 onClick={() => handleFilterOrSort("filter", "all")}
-                className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${
-                  filterType === "all"
+                className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${filterType === "all"
                     ? "bg-blue-100 text-blue-700"
                     : "text-slate-700 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 All Sensors
               </button>
@@ -366,11 +367,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <button
                     key={s}
                     onClick={() => handleFilterOrSort("filter", s)}
-                    className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${
-                      filterType === s
+                    className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${filterType === s
                         ? "bg-blue-100 text-blue-700"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                   >
                     {s}
                   </button>
@@ -383,11 +383,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <button
                   key={ft}
                   onClick={() => handleFilterOrSort("filter", ft)}
-                  className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${
-                    filterType === ft
+                  className={`text-left w-full px-2 py-1.5 text-sm rounded-md ${filterType === ft
                       ? "bg-blue-100 text-blue-700"
                       : "text-slate-700 hover:bg-slate-100"
-                  }`}
+                    }`}
                 >
                   {ft}
                 </button>
@@ -400,22 +399,20 @@ const Dashboard: React.FC<DashboardProps> = ({
           <button
             onClick={() => setViewMode("grid")}
             aria-label="Grid view"
-            className={`p-2 rounded-lg ${
-              viewMode === "grid"
+            className={`p-2 rounded-lg ${viewMode === "grid"
                 ? "bg-blue-600 text-white"
                 : "text-slate-500 hover:bg-slate-200"
-            }`}
+              }`}
           >
             <LayoutGrid className="h-5 w-5" />
           </button>
           <button
             onClick={() => setViewMode("list")}
             aria-label="List view"
-            className={`p-2 rounded-lg ${
-              viewMode === "list"
+            className={`p-2 rounded-lg ${viewMode === "list"
                 ? "bg-blue-600 text-white"
                 : "text-slate-500 hover:bg-slate-200"
-            }`}
+              }`}
           >
             <List className="h-5 w-5" />
           </button>

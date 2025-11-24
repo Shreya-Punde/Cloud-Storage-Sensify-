@@ -81,9 +81,13 @@ export const getFiles = async (): Promise<FileItem[]> => {
 };
 
 // UPLOAD FILE - Fixed to return proper response
-export const uploadFile = async (file: File): Promise<FileItem> => {
+// Change the parameter type from FileItem to File (browser File object)
+export const uploadFile = async (
+  file: File,
+  uploadedAt: number
+): Promise<FileItem> => {
   try {
-    const publicId = file.name.split(".").slice(0, -1).join(".") || file.name;
+    const publicId = `${file.name}-${uploadedAt}`;
     const form = new FormData();
     form.append("file", file);
     form.append("publicId", publicId);
@@ -122,21 +126,23 @@ export const renameFile = async (
   newName: string
 ): Promise<FileItem> => {
   try {
+    console.log("came into rename function")
     // Keep the original extension from the file
-    const oldExtension = file.id.split(".").pop();
+    const oldExtension = `${file.name}`.split(".").pop();
     let newPublicId = newName;
 
     // Remove extension from newName if it was provided
+    console.log(newPublicId)
     newPublicId = newPublicId.replace(/\.[^/.]+$/, "");
-
+    console.log(oldExtension, newPublicId, `${file.name}`)
     // Add back the original extension if the file had one
-    if (oldExtension && file.id.includes(".")) {
+    if (oldExtension && `${file.name}`.includes(".")) {
       newPublicId = `${newPublicId}.${oldExtension}`;
     }
 
     console.log(
       "Renaming:",
-      file.id,
+      `${file.name}`,
       "to:",
       newPublicId,
       "type:",
@@ -144,7 +150,7 @@ export const renameFile = async (
     );
 
     const res = await fetch(
-      `${API_BASE_URL}/files/${encodeURIComponent(file.id)}/rename`,
+      `${API_BASE_URL}/files/${encodeURIComponent(`${file.name}`)}/rename`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -157,6 +163,7 @@ export const renameFile = async (
 
     if (!res.ok) {
       const error = await res.json();
+      console.log()
       console.error("Rename error response:", error);
       throw new Error(error.error || "Rename failed");
     }
@@ -175,11 +182,10 @@ export const renameFile = async (
 // DELETE FILE
 export const deleteFile = async (file: FileItem): Promise<boolean> => {
   try {
-    console.log("Deleting file:", file.id, "type:", file.resourceType);
+    console.log("Deleting file:", `${file.name}-${file.uploadedAt}`, "type:", file.resourceType);
 
     const res = await fetch(
-      `${API_BASE_URL}/files/${encodeURIComponent(file.id)}?resourceType=${
-        file.resourceType || "raw"
+      `${API_BASE_URL}/files/${encodeURIComponent(`${file.name}`)}?resourceType=${file.resourceType || "raw"
       }`,
       { method: "DELETE" }
     );

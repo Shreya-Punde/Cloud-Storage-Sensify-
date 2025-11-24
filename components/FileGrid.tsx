@@ -95,7 +95,7 @@ const FileGrid: React.FC<FileGridProps> = ({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {files.map((file) => (
         <div
-          key={file.id}
+          key={`${file.name}-${file.uploadedAt}`}
           onClick={(e) => handleCardClick(e, file)}
           className={`relative bg-white rounded-2xl border-2 transition-all hover:shadow-lg group ${
             selectionMode
@@ -120,19 +120,19 @@ const FileGrid: React.FC<FileGridProps> = ({
           {!selectionMode && (
             <div
               className="absolute top-3 right-3 z-10"
-              ref={openMenuId === file.id ? menuRef : null}
+              ref={openMenuId === `${file.name}-${file.uploadedAt}` ? menuRef : null}
             >
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpenMenuId(openMenuId === file.id ? null : file.id);
+                  setOpenMenuId(openMenuId === `${file.name}-${file.uploadedAt}` ? null : `${file.name}-${file.uploadedAt}`);
                 }}
                 className="menu-button p-1.5 rounded-lg bg-white border border-slate-200 opacity-0 group-hover:opacity-100 hover:bg-slate-50 transition-opacity"
                 aria-label="File options"
               >
                 <MoreVertical className="w-4 h-4 text-slate-600" />
               </button>
-              {openMenuId === file.id && (
+              {openMenuId === `${file.name}-${file.uploadedAt}` && (
                 <div className="absolute right-0 mt-1 w-40 rounded-lg bg-white shadow-lg ring-1 ring-slate-200 z-20 py-1">
                   <button
                     onClick={(e) => {

@@ -58,58 +58,58 @@ app.get('/api/files', async (req, res) => {
 });
 
 // Alternative: Use API to list resources by type
-app.get('/api/files/alternative', async (req, res) => {
-    try {
-        console.log('Fetching all resources...');
+// app.get('/api/files/alternative', async (req, res) => {
+//     try {
+//         console.log('Fetching all resources...');
         
-        const allFiles = [];
+//         const allFiles = [];
         
-        // Fetch images
-        const images = await cloudinary.api.resources({ 
-            resource_type: 'image',
-            max_results: 500 
-        });
-        allFiles.push(...images.resources);
+//         // Fetch images
+//         const images = await cloudinary.api.resources({ 
+//             resource_type: 'image',
+//             max_results: 500 
+//         });
+//         allFiles.push(...images.resources);
         
-        // Fetch raw files (PDFs, CSVs, etc.)
-        const rawFiles = await cloudinary.api.resources({ 
-            resource_type: 'raw',
-            max_results: 500 
-        });
-        allFiles.push(...rawFiles.resources);
+//         // Fetch raw files (PDFs, CSVs, etc.)
+//         const rawFiles = await cloudinary.api.resources({ 
+//             resource_type: 'raw',
+//             max_results: 500 
+//         });
+//         allFiles.push(...rawFiles.resources);
         
-        // Fetch videos if you have any
-        const videos = await cloudinary.api.resources({ 
-            resource_type: 'video',
-            max_results: 500 
-        });
-        allFiles.push(...videos.resources);
+//         // Fetch videos if you have any
+//         const videos = await cloudinary.api.resources({ 
+//             resource_type: 'video',
+//             max_results: 500 
+//         });
+//         allFiles.push(...videos.resources);
         
-        console.log(`Found ${allFiles.length} total files`);
+//         console.log(`Found ${allFiles.length} total files`);
         
-        const files = allFiles.map(resource => ({
-            public_id: resource.public_id,
-            format: resource.format,
-            resource_type: resource.resource_type,
-            bytes: resource.bytes,
-            created_at: resource.created_at,
-            secure_url: resource.secure_url,
-            url: resource.url,
-            original_filename: resource.public_id,
-            width: resource.width,
-            height: resource.height,
-            folder: resource.folder
-        }));
+//         const files = allFiles.map(resource => ({
+//             public_id: resource.public_id,
+//             format: resource.format,
+//             resource_type: resource.resource_type,
+//             bytes: resource.bytes,
+//             created_at: resource.created_at,
+//             secure_url: resource.secure_url,
+//             url: resource.url,
+//             original_filename: resource.public_id,
+//             width: resource.width,
+//             height: resource.height,
+//             folder: resource.folder
+//         }));
         
-        res.json(files);
-    } catch (error) {
-        console.error('Cloudinary API error:', error);
-        res.status(500).json({ 
-            error: error.message,
-            details: error.error || {}
-        });
-    }
-});
+//         res.json(files);
+//     } catch (error) {
+//         console.error('Cloudinary API error:', error);
+//         res.status(500).json({ 
+//             error: error.message,
+//             details: error.error || {}
+//         });
+//     }
+// });
 
 // Upload file
 app.post('/api/files', upload.single('file'), async (req, res) => {
