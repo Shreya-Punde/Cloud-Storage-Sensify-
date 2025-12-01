@@ -69,8 +69,8 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg">
+                {/* <svg
                   className="w-7 h-7 text-white"
                   fill="none"
                   stroke="currentColor"
@@ -82,15 +82,16 @@ function App() {
                     strokeWidth={2}
                     d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
                   />
-                </svg>
+                </svg> */}
+                <img className="z-100 h-10 w-10" src="./components/icons/goobe.PNG" alt="" />
               </div>
 
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  IoT Data Manager
+                  SENSIFY
                 </h1>
                 <p className="text-sm text-slate-500">
-                  Manage your sensor data files
+                  Smart Sensing. Sharper Decisions
                 </p>
               </div>
             </div>
